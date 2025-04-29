@@ -3,74 +3,91 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-} from "recharts";
+import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
 import { 
-  Users, 
-  BookOpen, 
-  FilePlus, 
-  ChevronRight, 
-  Award, 
   LayoutDashboard,
   BookMarked,
   Settings,
-  LogOut
+  LogOut,
+  Plus,
+  Search,
+  Calendar,
+  UserCheck,
+  UserX
 } from "lucide-react";
 import Logo from "@/components/Logo";
 
-const statistics = [
-  {
-    month: "Янв",
-    students: 120,
-    resources: 30,
-  },
-  {
-    month: "Фев",
-    students: 170,
-    resources: 40,
-  },
-  {
-    month: "Март",
-    students: 210,
-    resources: 45,
-  },
-  {
-    month: "Апр",
-    students: 250,
-    resources: 60,
-  },
-];
-
-const recentActivities = [
-  {
-    id: 1,
-    action: "Добавлен новый материал",
-    title: "История Ржевской битвы",
-    date: "27 апреля 2025",
-  },
-  {
-    id: 2,
-    action: "Создан интерактивный урок",
-    title: "Герои Сталинградской битвы",
-    date: "25 апреля 2025",
-  },
-  {
-    id: 3,
-    action: "Обновлена информация о проекте",
-    title: "Добавлены новые цели и задачи",
-    date: "20 апреля 2025",
-  },
+// Демо-данные для списка учащихся
+const initialStudents = [
+  { id: 1, name: "Иванов Иван", grade: "9А", present: true, lastAttendance: "28/04/2025" },
+  { id: 2, name: "Петрова Мария", grade: "9А", present: false, lastAttendance: "28/04/2025" },
+  { id: 3, name: "Сидоров Алексей", grade: "9Б", present: true, lastAttendance: "28/04/2025" },
+  { id: 4, name: "Кузнецова Анна", grade: "10А", present: true, lastAttendance: "28/04/2025" },
+  { id: 5, name: "Новиков Дмитрий", grade: "10А", present: false, lastAttendance: "27/04/2025" },
+  { id: 6, name: "Морозова Екатерина", grade: "8В", present: true, lastAttendance: "28/04/2025" },
+  { id: 7, name: "Волков Сергей", grade: "11А", present: true, lastAttendance: "28/04/2025" },
+  { id: 8, name: "Зайцева Ольга", grade: "11Б", present: false, lastAttendance: "26/04/2025" },
 ];
 
 const Dashboard = () => {
-  const [activeSidebarItem, setActiveSidebarItem] = useState("dashboard");
+  const [activeSidebarItem, setActiveSidebarItem] = useState("attendance");
+  const [students, setStudents] = useState(initialStudents);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [newStudentName, setNewStudentName] = useState("");
+  const [newStudentGrade, setNewStudentGrade] = useState("");
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [currentDate, setCurrentDate] = useState(new Date().toLocaleDateString("ru-RU"));
+
+  // Фильтрация студентов по поисковому запросу
+  const filteredStudents = students.filter(student => 
+    student.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+    student.grade.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  // Изменение статуса присутствия
+  const toggleAttendance = (id: number) => {
+    setStudents(students.map(student => 
+      student.id === id 
+        ? { ...student, present: !student.present, lastAttendance: student.present ? student.lastAttendance : currentDate } 
+        : student
+    ));
+  };
+
+  // Добавление нового студента
+  const addStudent = () => {
+    if (newStudentName.trim() && newStudentGrade.trim()) {
+      const newId = Math.max(...students.map(s => s.id)) + 1;
+      const newStudent = {
+        id: newId,
+        name: newStudentName.trim(),
+        grade: newStudentGrade.trim(),
+        present: false,
+        lastAttendance: "-"
+      };
+      setStudents([...students, newStudent]);
+      setNewStudentName("");
+      setNewStudentGrade("");
+      setShowAddForm(false);
+    }
+  };
+
+  // Отменить добавление студента
+  const cancelAddStudent = () => {
+    setNewStudentName("");
+    setNewStudentGrade("");
+    setShowAddForm(false);
+  };
+
+  // Отметить всех как присутствующих
+  const markAllPresent = () => {
+    setStudents(students.map(student => ({ ...student, present: true, lastAttendance: currentDate })));
+  };
+
+  // Количество присутствующих
+  const presentCount = students.filter(student => student.present).length;
 
   return (
     <div className="flex min-h-screen">
@@ -81,6 +98,14 @@ const Dashboard = () => {
         </div>
         <div className="space-y-1">
           <p className="text-xs font-medium text-white/60 mb-2 pl-3">ГЛАВНОЕ МЕНЮ</p>
+          <Button 
+            variant={activeSidebarItem === "attendance" ? "secondary" : "ghost"} 
+            className="w-full justify-start" 
+            onClick={() => setActiveSidebarItem("attendance")}
+          >
+            <UserCheck className="mr-2 h-4 w-4" />
+            Учет посещаемости
+          </Button>
           <Button 
             variant={activeSidebarItem === "dashboard" ? "secondary" : "ghost"} 
             className="w-full justify-start" 
@@ -94,16 +119,8 @@ const Dashboard = () => {
             className="w-full justify-start" 
             onClick={() => setActiveSidebarItem("materials")}
           >
-            <BookOpen className="mr-2 h-4 w-4" />
-            Материалы
-          </Button>
-          <Button 
-            variant={activeSidebarItem === "courses" ? "secondary" : "ghost"} 
-            className="w-full justify-start" 
-            onClick={() => setActiveSidebarItem("courses")}
-          >
             <BookMarked className="mr-2 h-4 w-4" />
-            Курсы
+            Учебные материалы
           </Button>
           <Button 
             variant={activeSidebarItem === "settings" ? "secondary" : "ghost"} 
@@ -145,203 +162,172 @@ const Dashboard = () => {
         {/* Dashboard content */}
         <main className="p-6">
           <div className="grid gap-6">
-            {/* Overview cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium text-muted-foreground">
-                    Всего учащихся
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex items-center">
-                    <Users className="h-5 w-5 text-victory-red mr-2" />
-                    <div className="text-2xl font-bold">1,248</div>
+            {activeSidebarItem === "attendance" && (
+              <>
+                {/* Статистика посещаемости */}
+                <div className="flex justify-between items-center bg-white p-4 rounded-lg border shadow-sm">
+                  <div className="flex items-center gap-2">
+                    <Calendar className="h-5 w-5 text-victory-red" />
+                    <span className="font-medium">{currentDate}</span>
                   </div>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    +32 за последнюю неделю
-                  </p>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium text-muted-foreground">
-                    Образовательные материалы
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex items-center">
-                    <BookOpen className="h-5 w-5 text-victory-blue mr-2" />
-                    <div className="text-2xl font-bold">78</div>
+                  <div className="flex gap-4">
+                    <div className="flex items-center">
+                      <UserCheck className="h-5 w-5 text-green-500 mr-1" />
+                      <span className="font-medium">{presentCount}</span>
+                    </div>
+                    <div className="flex items-center">
+                      <UserX className="h-5 w-5 text-red-500 mr-1" />
+                      <span className="font-medium">{students.length - presentCount}</span>
+                    </div>
                   </div>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    +5 материалов добавлено
-                  </p>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium text-muted-foreground">
-                    Реализованные интерактивные уроки
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex items-center">
-                    <Award className="h-5 w-5 text-victory-red mr-2" />
-                    <div className="text-2xl font-bold">24</div>
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    В проведении: 3 урока
-                  </p>
-                </CardContent>
-              </Card>
-            </div>
-            
-            {/* Tabs section */}
-            <Tabs defaultValue="overview">
-              <TabsList>
-                <TabsTrigger value="overview">Обзор</TabsTrigger>
-                <TabsTrigger value="analytics">Аналитика</TabsTrigger>
-                <TabsTrigger value="activities">Активности</TabsTrigger>
-              </TabsList>
-              
-              <TabsContent value="overview" className="space-y-4">
+                </div>
+
+                {/* Управление списком учащихся */}
                 <Card>
-                  <CardHeader>
-                    <CardTitle>Статистика участия</CardTitle>
-                    <CardDescription>
-                      Количество активных учащихся и созданных образовательных ресурсов по месяцам
-                    </CardDescription>
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <div>
+                      <CardTitle>Учет посещаемости</CardTitle>
+                      <CardDescription>
+                        Управление списком учащихся и отметки о присутствии
+                      </CardDescription>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={markAllPresent}
+                      >
+                        <UserCheck className="h-4 w-4 mr-1" />
+                        Отметить всех
+                      </Button>
+                      <Button 
+                        variant="default" 
+                        size="sm"
+                        onClick={() => setShowAddForm(true)}
+                      >
+                        <Plus className="h-4 w-4 mr-1" />
+                        Добавить ученика
+                      </Button>
+                    </div>
                   </CardHeader>
-                  <CardContent className="pl-2">
-                    <div className="h-[300px]">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <BarChart data={statistics}>
-                          <CartesianGrid strokeDasharray="3 3" />
-                          <XAxis dataKey="month" />
-                          <YAxis />
-                          <Tooltip />
-                          <Bar 
-                            dataKey="students" 
-                            name="Учащиеся" 
-                            fill="#E63946" 
-                            radius={[4, 4, 0, 0]} 
-                          />
-                          <Bar 
-                            dataKey="resources" 
-                            name="Материалы" 
-                            fill="#1D3557" 
-                            radius={[4, 4, 0, 0]} 
-                          />
-                        </BarChart>
-                      </ResponsiveContainer>
+                  <CardContent>
+                    {/* Форма добавления нового ученика */}
+                    {showAddForm && (
+                      <div className="mb-4 p-4 border rounded-md bg-muted/20">
+                        <h3 className="font-medium mb-2">Добавить нового ученика</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                          <div className="col-span-2">
+                            <Input
+                              placeholder="ФИО ученика"
+                              value={newStudentName}
+                              onChange={(e) => setNewStudentName(e.target.value)}
+                            />
+                          </div>
+                          <div>
+                            <Input
+                              placeholder="Класс"
+                              value={newStudentGrade}
+                              onChange={(e) => setNewStudentGrade(e.target.value)}
+                            />
+                          </div>
+                        </div>
+                        <div className="flex justify-end gap-2">
+                          <Button variant="outline" size="sm" onClick={cancelAddStudent}>Отмена</Button>
+                          <Button size="sm" onClick={addStudent}>Добавить</Button>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Поиск */}
+                    <div className="relative mb-4">
+                      <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        placeholder="Поиск по имени или классу..."
+                        className="pl-8"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                      />
+                    </div>
+
+                    {/* Таблица учащихся */}
+                    <div className="rounded-md border">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead className="w-[50px]">№</TableHead>
+                            <TableHead>ФИО</TableHead>
+                            <TableHead>Класс</TableHead>
+                            <TableHead>Присутствие</TableHead>
+                            <TableHead>Последнее присутствие</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {filteredStudents.length > 0 ? (
+                            filteredStudents.map((student, index) => (
+                              <TableRow key={student.id}>
+                                <TableCell className="font-medium">{index + 1}</TableCell>
+                                <TableCell>{student.name}</TableCell>
+                                <TableCell>{student.grade}</TableCell>
+                                <TableCell>
+                                  <div className="flex items-center space-x-2">
+                                    <Checkbox 
+                                      id={`student-${student.id}`} 
+                                      checked={student.present}
+                                      onCheckedChange={() => toggleAttendance(student.id)}
+                                    />
+                                    <Badge 
+                                      variant={student.present ? "default" : "outline"}
+                                      className={student.present ? "bg-green-500 hover:bg-green-500/90" : "text-red-500"}
+                                    >
+                                      {student.present ? "Присутствует" : "Отсутствует"}
+                                    </Badge>
+                                  </div>
+                                </TableCell>
+                                <TableCell>{student.lastAttendance}</TableCell>
+                              </TableRow>
+                            ))
+                          ) : (
+                            <TableRow>
+                              <TableCell colSpan={5} className="text-center py-4">
+                                Не найдено учащихся по вашему запросу
+                              </TableCell>
+                            </TableRow>
+                          )}
+                        </TableBody>
+                      </Table>
                     </div>
                   </CardContent>
                 </Card>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Последние действия</CardTitle>
-                      <CardDescription>
-                        Последние изменения в проекте
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-4">
-                        {recentActivities.map((activity) => (
-                          <div 
-                            key={activity.id} 
-                            className="flex justify-between items-start pb-4 border-b last:border-0 last:pb-0"
-                          >
-                            <div>
-                              <p className="text-sm text-muted-foreground">{activity.action}</p>
-                              <p className="font-medium">{activity.title}</p>
-                            </div>
-                            <p className="text-sm text-muted-foreground">{activity.date}</p>
-                          </div>
-                        ))}
-                      </div>
-                    </CardContent>
-                  </Card>
-                  
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Быстрые действия</CardTitle>
-                      <CardDescription>
-                        Основные операции для управления проектом
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-2">
-                        <Button 
-                          variant="outline" 
-                          className="w-full justify-between group"
-                        >
-                          <div className="flex items-center">
-                            <FilePlus className="mr-2 h-4 w-4 text-victory-red" />
-                            <span>Добавить новый материал</span>
-                          </div>
-                          <ChevronRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                        </Button>
-                        <Button 
-                          variant="outline" 
-                          className="w-full justify-between group"
-                        >
-                          <div className="flex items-center">
-                            <BookOpen className="mr-2 h-4 w-4 text-victory-blue" />
-                            <span>Создать интерактивный урок</span>
-                          </div>
-                          <ChevronRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                        </Button>
-                        <Button 
-                          variant="outline" 
-                          className="w-full justify-between group"
-                        >
-                          <div className="flex items-center">
-                            <Users className="mr-2 h-4 w-4 text-victory-red" />
-                            <span>Управление участниками</span>
-                          </div>
-                          <ChevronRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-              </TabsContent>
-              
-              <TabsContent value="analytics">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Детальная аналитика</CardTitle>
-                    <CardDescription>
-                      Подробная информация об использовании материалов
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-muted-foreground">
-                      Раздел находится в разработке...
-                    </p>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-              
-              <TabsContent value="activities">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Журнал активностей</CardTitle>
-                    <CardDescription>
-                      История всех действий в системе
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-muted-foreground">
-                      Раздел находится в разработке...
-                    </p>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-            </Tabs>
+              </>
+            )}
+
+            {activeSidebarItem === "dashboard" && (
+              <Card className="p-6 text-center">
+                <h2 className="text-xl font-bold mb-4">Панель управления</h2>
+                <p className="text-muted-foreground">
+                  Этот раздел находится в разработке и будет доступен в ближайшее время.
+                </p>
+              </Card>
+            )}
+
+            {activeSidebarItem === "materials" && (
+              <Card className="p-6 text-center">
+                <h2 className="text-xl font-bold mb-4">Учебные материалы</h2>
+                <p className="text-muted-foreground">
+                  Здесь вы сможете управлять учебными материалами проекта.
+                  Раздел в процессе разработки.
+                </p>
+              </Card>
+            )}
+
+            {activeSidebarItem === "settings" && (
+              <Card className="p-6 text-center">
+                <h2 className="text-xl font-bold mb-4">Настройки</h2>
+                <p className="text-muted-foreground">
+                  Настройки личного кабинета будут доступны в следующем обновлении.
+                </p>
+              </Card>
+            )}
           </div>
         </main>
       </div>

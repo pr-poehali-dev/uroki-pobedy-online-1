@@ -2,9 +2,11 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import HeroSection from "@/components/HeroSection";
 import FeaturesSection from "@/components/FeaturesSection";
+import QuoteCarousel from "@/components/QuoteCarousel";
+import CountdownTimer from "@/components/CountdownTimer";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { ArrowRight, BookOpen, Shield, MapPin } from "lucide-react";
+import { ArrowRight, BookOpen, Shield, MapPin, Award, FileText } from "lucide-react";
 
 const Index = () => {
   return (
@@ -12,6 +14,23 @@ const Index = () => {
       <Header />
       <main className="flex-grow">
         <HeroSection />
+        
+        {/* Quote Carousel & Countdown */}
+        <section className="py-8 bg-muted/20">
+          <div className="container mx-auto px-4">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div className="lg:col-span-2">
+                <h2 className="text-xl font-bold mb-4">Цитаты о патриотизме и памяти</h2>
+                <QuoteCarousel />
+              </div>
+              <div>
+                <h2 className="text-xl font-bold mb-4">Обратный отсчёт</h2>
+                <CountdownTimer />
+              </div>
+            </div>
+          </div>
+        </section>
+        
         <FeaturesSection />
         
         {/* Materials Section */}
@@ -91,6 +110,87 @@ const Index = () => {
                   </p>
                   <Button variant="outline" className="w-full group" asChild>
                     <Link to="/materials/donbass">
+                      Изучить материалы
+                      <ArrowRight className="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                    </Link>
+                  </Button>
+                </div>
+              </div>
+            </div>
+            
+            {/* Второй ряд материалов */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-8">
+              {/* Герои ВОВ */}
+              <div className="bg-white rounded-lg border shadow-sm overflow-hidden hover:shadow-md transition-shadow">
+                <div className="h-40 overflow-hidden">
+                  <img 
+                    src="https://images.unsplash.com/photo-1551033406-611cf9a28f67?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" 
+                    alt="Герои ВОВ" 
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <div className="p-6">
+                  <div className="flex items-center gap-2 mb-3">
+                    <Award className="h-5 w-5 text-victory-red" />
+                    <h3 className="text-lg font-semibold">Герои ВОВ</h3>
+                  </div>
+                  <p className="text-muted-foreground mb-4">
+                    Истории подвигов героев Великой Отечественной войны, биографии и награды
+                  </p>
+                  <Button variant="outline" className="w-full group" asChild>
+                    <Link to="/heroes/vov">
+                      Изучить материалы
+                      <ArrowRight className="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                    </Link>
+                  </Button>
+                </div>
+              </div>
+              
+              {/* Герои СВО */}
+              <div className="bg-white rounded-lg border shadow-sm overflow-hidden hover:shadow-md transition-shadow">
+                <div className="h-40 overflow-hidden">
+                  <img 
+                    src="https://images.unsplash.com/photo-1566766292206-eeaf223cae68?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" 
+                    alt="Герои СВО" 
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <div className="p-6">
+                  <div className="flex items-center gap-2 mb-3">
+                    <Award className="h-5 w-5 text-victory-blue" />
+                    <h3 className="text-lg font-semibold">Герои СВО</h3>
+                  </div>
+                  <p className="text-muted-foreground mb-4">
+                    Современные герои России, подвиги в ходе специальной военной операции
+                  </p>
+                  <Button variant="outline" className="w-full group" asChild>
+                    <Link to="/heroes/svo">
+                      Изучить материалы
+                      <ArrowRight className="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                    </Link>
+                  </Button>
+                </div>
+              </div>
+              
+              {/* История России */}
+              <div className="bg-white rounded-lg border shadow-sm overflow-hidden hover:shadow-md transition-shadow">
+                <div className="h-40 overflow-hidden">
+                  <img 
+                    src="https://images.unsplash.com/photo-1513326738677-b964603b136d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" 
+                    alt="История России" 
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <div className="p-6">
+                  <div className="flex items-center gap-2 mb-3">
+                    <FileText className="h-5 w-5 text-victory-blue" />
+                    <h3 className="text-lg font-semibold">История России</h3>
+                  </div>
+                  <p className="text-muted-foreground mb-4">
+                    Ключевые события истории России, важные даты и исторические личности
+                  </p>
+                  <Button variant="outline" className="w-full group" asChild>
+                    <Link to="/materials/russia">
                       Изучить материалы
                       <ArrowRight className="h-4 w-4 ml-2 group-hover:translate-x-1 transition-transform" />
                     </Link>
