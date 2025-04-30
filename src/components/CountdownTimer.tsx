@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 
 interface TimeLeft {
@@ -9,28 +9,33 @@ interface TimeLeft {
 }
 
 const CountdownTimer = () => {
-  const [timeLeft, setTimeLeft] = useState<TimeLeft>({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+  const [timeLeft, setTimeLeft] = useState<TimeLeft>({
+    days: 0,
+    hours: 0,
+    minutes: 0,
+    seconds: 0
+  });
 
   useEffect(() => {
     const calculateTimeLeft = () => {
-      // Определяем ближайшее 9 мая
+      // Устанавливаем дату 9 мая следующего года
       const currentYear = new Date().getFullYear();
-      const victoryDay = new Date(currentYear, 4, 9); // Месяцы в JavaScript начинаются с 0 (январь = 0, май = 4)
+      const targetDate = new Date(currentYear, 4, 9); // Месяцы в JS начинаются с 0, поэтому 4 = май
       
-      // Если 9 мая текущего года уже прошло, берём 9 мая следующего года
-      if (victoryDay.getTime() < Date.now()) {
-        victoryDay.setFullYear(currentYear + 1);
+      // Если 9 мая текущего года уже прошло, устанавливаем на следующий год
+      if (targetDate < new Date()) {
+        targetDate.setFullYear(currentYear + 1);
       }
-      
-      const difference = victoryDay.getTime() - Date.now();
+
+      const difference = targetDate.getTime() - new Date().getTime();
       
       if (difference > 0) {
-        setTimeLeft({
-          days: Math.floor(difference / (1000 * 60 * 60 * 24)),
-          hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
-          minutes: Math.floor((difference / 1000 / 60) % 60),
-          seconds: Math.floor((difference / 1000) % 60)
-        });
+        const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((difference % (1000 * 60)) / 1000);
+        
+        setTimeLeft({ days, hours, minutes, seconds });
       }
     };
 
@@ -40,27 +45,34 @@ const CountdownTimer = () => {
     return () => clearInterval(timer);
   }, []);
 
+  const formatNumber = (num: number) => {
+    return num < 10 ? `0${num}` : num;
+  };
+
   return (
-    <Card className="bg-victory-blue text-white border-none shadow-lg">
+    <Card className="border-none shadow-lg bg-gradient-to-r from-victory-blue to-victory-blue/70 text-white">
       <CardContent className="p-6">
-        <h3 className="text-lg font-medium mb-4 text-center">До Дня Победы осталось:</h3>
+        <h3 className="text-lg font-bold mb-4">До Дня Победы осталось:</h3>
         <div className="grid grid-cols-4 gap-2 text-center">
-          <div className="flex flex-col">
-            <div className="text-2xl md:text-3xl font-bold">{timeLeft.days}</div>
-            <div className="text-xs md:text-sm text-white/80">дней</div>
+          <div className="bg-black/20 rounded-lg p-3">
+            <div className="text-3xl font-bold">{formatNumber(timeLeft.days)}</div>
+            <div className="text-xs mt-1">дней</div>
           </div>
-          <div className="flex flex-col">
-            <div className="text-2xl md:text-3xl font-bold">{timeLeft.hours}</div>
-            <div className="text-xs md:text-sm text-white/80">часов</div>
+          <div className="bg-black/20 rounded-lg p-3">
+            <div className="text-3xl font-bold">{formatNumber(timeLeft.hours)}</div>
+            <div className="text-xs mt-1">часов</div>
           </div>
-          <div className="flex flex-col">
-            <div className="text-2xl md:text-3xl font-bold">{timeLeft.minutes}</div>
-            <div className="text-xs md:text-sm text-white/80">минут</div>
+          <div className="bg-black/20 rounded-lg p-3">
+            <div className="text-3xl font-bold">{formatNumber(timeLeft.minutes)}</div>
+            <div className="text-xs mt-1">минут</div>
           </div>
-          <div className="flex flex-col">
-            <div className="text-2xl md:text-3xl font-bold">{timeLeft.seconds}</div>
-            <div className="text-xs md:text-sm text-white/80">секунд</div>
+          <div className="bg-black/20 rounded-lg p-3">
+            <div className="text-3xl font-bold">{formatNumber(timeLeft.seconds)}</div>
+            <div className="text-xs mt-1">секунд</div>
           </div>
+        </div>
+        <div className="mt-4 text-center">
+          <p className="text-sm">9 мая 2025 года - 80 лет Великой Победы</p>
         </div>
       </CardContent>
     </Card>
